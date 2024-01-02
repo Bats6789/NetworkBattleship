@@ -1,9 +1,10 @@
-"""
+'''
 File: battleship.py
 Auth: Blake Wingard - bats23456789@gmail.com
 Date: 01/02/2024
 Desc: Game logic for battleship.
-"""
+'''
+
 
 class OutOfBoundsException(Exception):
     "Raised when a ship is out of bounds"
