@@ -1,8 +1,9 @@
-################################################
-# File: battleshipTest.py                      #
-# Auth: Blake Wingard - bats23456789@gmail.com #
-# Desc: A Test file for battleship.py          #
-################################################
+'''
+File: battleshipTest.py
+Auth: Blake Wingard - bats23456789@gmail.com
+Date: 01/02/2024
+Desc: A Test file for battleship.py
+'''
 import battleship
 
 
@@ -26,7 +27,7 @@ def main():
 
     try:
         board.addShip(battleship.Ship('Submarine', (2, 10), (4, 10)))
-    except battleship.OutOfBounds:
+    except battleship.OutOfBoundsException:
         print('Out of bounds')
 
     board.addShip(battleship.Ship('Submarine', (4, 9), (6, 9)))
