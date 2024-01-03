@@ -6,6 +6,6 @@ A simple project to develop network communication skills. Primarily in Python.
 - [ ] Design communication standard
 - [ ] Implement game
     - [x] Implement Board logic
-    - [ ] Implement setup logic
+    - [x] Implement setup logic
     - [ ] Implement turn logic
     - [ ] Implement winning logic

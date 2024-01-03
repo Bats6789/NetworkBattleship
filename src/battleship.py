@@ -63,6 +63,8 @@ class Ship:
         if start[0] != stop[0] and start[1] != stop[1]:
             raise InvalidPlacementException
 
+
+
         self.name = name
         self.start = start
         self.stop = stop
@@ -78,6 +80,12 @@ class Ship:
         '''
         return f'{self.name}: {self.start}-{self.stop}: '\
             f'[{"".join("X" if shot else "O" for shot in self.hits)}]'
+
+    def __len__(self):
+        '''
+        Gives the length of the ship
+        '''
+        return len(self.hits)
 
     def shoot(self, shot: tuple[int, int]):
         '''
@@ -149,13 +157,13 @@ class Board:
     isGameOver(): bool
         Checks if game is over.
     '''
-    ships = []
 
     def __init__(self):
         '''
         Constructs all the necesarry attributes for the Board object
         '''
         self.grid = [[0 for i in range(10)] for j in range(10)]
+        self.ships = []
 
     def __repr__(self) -> str:
         '''

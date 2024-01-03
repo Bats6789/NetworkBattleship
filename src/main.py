@@ -4,68 +4,99 @@ Auth: Blake Wingard - bats23456789@gmail.com
 Date: 12/30/2024
 Desc: The main entry point for the project.
 '''
+from battleship import Board
+from battleship import Ship
 import battleship
 
 
+def parseInput():
+    done = False
+    while not done:
+        data = input()
+        if (len(data) != 2 and len(data) != 3):
+            print('Please enter in the letter-number format. Ex. B4')
+        elif not data[0].isalpha() or not data[1:].isnumeric():
+            print('Please enter in the letter-number format. Ex. B4')
+        elif 'A' > data[0] or data[0] > 'J':
+            print('Letter is out of range. Can only be between "A" and "J"')
+        elif int(data[1:]) < 0 or int(data[1:]) > 10:
+            print('Number is out of range. Can only be between "1" and "10"')
+        else:
+            pos = (ord(data[0].upper()) - ord('A'), int(data[1:]) - 1)
+            done = True
+
+    return pos
+
+
+def getShipFromPlayer(playerName: str, shipName: str, length: int) -> Ship:
+    done = False
+    while not done:
+        print(f'{playerName}, enter the start coordinates for the {shipName}: ')
+        start = parseInput()
+        print(f'{playerName}, enter the stop coordinates for the {shipName}: ')
+        stop = parseInput()
+
+        try:
+            ship = Ship(shipName, start, stop)
+        except battleship.InvalidPlacementException:
+            print('Ship can not be diagonal')
+            print('Please try again')
+            continue
+
+        if len(ship) != length:
+            print('Ship is too small')
+        else:
+            done = True
+
+    return ship
+
+
+def setupPlayer(playerName: str) -> Board:
+    board = Board()
+
+    def addShipToBoard(shipName: str, length: int):
+        done = False
+        while not done:
+            try:
+                board.addShip(getShipFromPlayer(playerName, shipName, length))
+            except battleship.OverlapException:
+                print('Ships can not overlap')
+                print('Please try again')
+            except battleship.OutOfBoundsException:
+                print('The ship does not fit on the board')
+                print('Please try again')
+            else:
+                done = True
+
+    # Carrier
+    addShipToBoard('Carrier', 5)
+
+    # Battleship
+    addShipToBoard('Battleship', 4)
+
+    # Destroyer
+    addShipToBoard('Destroyer', 3)
+
+    # Submarine
+    addShipToBoard('Submarine', 3)
+
+    # Patrol Boat
+    addShipToBoard('Patrol Boat', 2)
+
+    return board
+
+
 def main():
-    board = battleship.Board()
-    board.addShip(battleship.Ship('Carrier', (0, 0), (0, 4)))
+    player1 = setupPlayer('Player 1')
+    player2 = setupPlayer('Player 2')
 
-    try:
-        board.addShip(battleship.Ship('Battleship', (0, 0), (0, 3)))
-    except battleship.OverlapException:
-        print('Overlapping ships')
+    print('Player 1:')
+    print(player1)
 
-    board.addShip(battleship.Ship('Battleship', (1, 0), (4, 0)))
+    print()
 
-    try:
-        board.addShip(battleship.Ship('Destroyer', (1, 2), (4, 1)))
-    except battleship.InvalidPlacementException:
-        print('Diagonal placement')
-
-    board.addShip(battleship.Ship('Destroyer', (2, 2), (4, 2)))
-
-    try:
-        board.addShip(battleship.Ship('Submarine', (2, 10), (4, 10)))
-    except battleship.OutOfBoundsException:
-        print('Out of bounds')
-
-    board.addShip(battleship.Ship('Submarine', (4, 9), (6, 9)))
-    board.removeShip('Submarine')
-
-    print(board)
-
-    shot = (0, 0)
-
-    print(f'{shot}: {board.shoot(shot)}')
-    print(f'{shot}: {board.shoot(shot)}')
-    shot = (1, 1)
-    print(f'{shot}: {board.shoot(shot)}')
-    print(board)
-
-    for i in range(1, 5):
-        shot = (0, i)
-        board.shoot(shot)
-
-    print(board)
-
-    print(f'GameOver: {board.isGameOver()}')
-
-    for i in range(0, 4):
-        shot = (1 + i, 0)
-        board.shoot(shot)
-
-    for i in range(0, 3):
-        shot = (2 + i, 2)
-        board.shoot(shot)
-
-    for i in range(0, 3):
-        shot = (4 + i, 9)
-        board.shoot(shot)
-
-    print(board)
-
-    print(f'GameOver: {board.isGameOver()}')
+    print('Player 2:')
+    print(player2)
 
     return 0
 
