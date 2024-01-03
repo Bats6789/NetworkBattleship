@@ -86,9 +86,34 @@ def setupPlayer(playerName: str) -> Board:
     return board
 
 
+def attemptShot(player: Board):
+    done = False
+
+    while not done:
+        print('Enter shot location:')
+        shot = parseInput()
+
+        try:
+            results = player.shoot(shot)
+        except battleship.OutOfBoundsException:
+            print('Shot is out of bounds')
+        else:
+            if results == 'SAME':
+                print('Already shot at this location')
+                print('Please try again\n')
+            else:
+                if results == 'SUNK':
+                    print(f'You sunk my {player.getShipAtPos(shot)}')
+                else:
+                    print(results)
+                done = True
+
+
 def main():
     player1 = setupPlayer('Player 1')
     player2 = setupPlayer('Player 2')
+    gameOver = False
+    turnPlayer = 1
 
     print('Player 1:')
     print(player1)
@@ -97,6 +122,27 @@ def main():
 
     print('Player 2:')
     print(player2)
+
+    print()
+
+    while not gameOver:
+
+        if turnPlayer == 1:
+            print('Player 1\'s turn')
+            attemptShot(player2)
+            turnPlayer = 2
+        else:
+            print('Player 2\'s turn')
+            attemptShot(player1)
+            turnPlayer = 1
+        print()
+
+        gameOver = player1.isGameOver() or player2.isGameOver()
+
+    if player1.isGameOver():
+        print('Player 2 Wins!')
+    else:
+        print('Player 1 Wins!')
 
     return 0
 

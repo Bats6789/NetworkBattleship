@@ -4,8 +4,8 @@ A simple project to develop network communication skills. Primarily in Python.
 ## TODO
 - [ ] Design GUI
 - [ ] Design communication standard
-- [ ] Implement game
+- [x] Implement game
     - [x] Implement Board logic
     - [x] Implement setup logic
-    - [ ] Implement turn logic
-    - [ ] Implement winning logic
+    - [x] Implement turn logic
+    - [x] Implement winning logic

@@ -43,6 +43,9 @@ class Ship:
 
     isSunk(): bool
         Checks if ship is sunk
+
+    posOnShip: bool
+        Checks if the position is on the ship
     '''
 
     def __init__(self, name, start, stop):
@@ -62,8 +65,6 @@ class Ship:
         '''
         if start[0] != stop[0] and start[1] != stop[1]:
             raise InvalidPlacementException
-
-
 
         self.name = name
         self.start = start
@@ -103,8 +104,7 @@ class Ship:
         -------
             bool: True if shot hit ship
         '''
-        if self.start[0] <= shot[0] <= self.stop[0]\
-                and self.start[1] <= shot[1] <= self.stop[1]:
+        if self.posOnShip(shot):
             key = shot[0] - self.start[0] + shot[1] - self.start[1]
             self.hits[key] = True
             return True
@@ -123,6 +123,22 @@ class Ship:
             bool: True if all positions are hit
         '''
         return all(self.hits)
+
+    def posOnShip(self, pos: tuple[int, int]) -> bool:
+        '''
+        Checks if the position is on the ship
+
+        Parameters
+        ----------
+            pos: tuple[int, int]
+                The position to check
+
+        Returns
+        -------
+            bool: True if the position is on the ship
+        '''
+        return self.start[0] <= pos[0] <= self.stop[0]\
+            and self.start[1] <= pos[1] <= self.stop[1]
 
 
 class Board:
@@ -266,7 +282,7 @@ class Board:
 
     def shoot(self, shot: tuple[int, int]):
         '''
-        Shoots the specified location and reports hit, miss, or same
+        Shoots the specified location and reports miss, same, hit, or sunk
 
         Parameters
         ----------
@@ -278,6 +294,7 @@ class Board:
             str: "MISS" if the shot did not hit a ship
                  "SAME" if the shot hit a previously shot position
                  "HIT" if the shot hit a ship
+                 "SUNK" if the shot sank the ship
 
         Raises
         ------
@@ -286,6 +303,7 @@ class Board:
         if self.isOutOfBounds(shot):
             raise OutOfBoundsException
 
+        didHit = 'ERROR'
         match(self.grid[shot[1]][shot[0]]):
             case 0:
                 didHit = 'MISS'
@@ -294,8 +312,11 @@ class Board:
             case _:
                 for ship in self.ships:
                     if ship.shoot(shot):
+                        if ship.isSunk():
+                            didHit = 'SUNK'
+                        else:
+                            didHit = 'HIT'
                         break
-                didHit = 'HIT'
 
         self.grid[shot[1]][shot[0]] = 1
 
@@ -310,3 +331,30 @@ class Board:
             bool: True if all ships have been sunk
         '''
         return all(map(Ship.isSunk, self.ships))
+
+    def getShipAtPos(self, pos: tuple[int, int]) -> Ship | None:
+        '''
+        Gets a ship at position (pos) if it exists
+
+        Parameters
+        ----------
+            pos: tuple[int, int]
+                The position of the ship to find
+
+        Returns
+        -------
+            Ship: The ship found
+
+            None: The ship was not found
+        '''
+        if self.grid[pos[1]][pos[0]] == 0:
+            return None
+
+        foundShip = None
+
+        for ship in self.ships:
+            if ship.posOnShip(pos):
+                foundShip = ship
+                break
+
+        return foundShip
