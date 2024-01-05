@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="QtResources">
+    <file>images/BoardBackground.jpg</file>
+  </qresource>
+</RCC>
