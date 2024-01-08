@@ -7,58 +7,9 @@ Desc: The main entry point for the project.
 from battleship import Board
 from battleship import Ship
 import battleship
+from gameView import GameView
 import sys
-from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QMainWindow, QGraphicsScene
-from PyQt6.QtWidgets import QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsView
-from PyQt6.QtGui import QColor
-from PyQt6.QtGui import QPixmap, QPainter
-from PyQt6.QtCore import Qt, QEvent
-
-
-class boardScene(QGraphicsScene):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bgImage = QPixmap('QtResources/images/BoardBackground.jpg')
-
-    def paintEvent(self, e):
-        print('Paint')
-        painter = QPainter(self)
-
-        winSize = e.rect().size()
-        pixMapRatio = self.bgImage.width() / self.bgImage.height()
-        windowRatio = winSize.width() / winSize.height()
-        print(winSize)
-        print(pixMapRatio, windowRatio)
-
-        # if pixMapRatio > windowRatio:
-        #     print('small')
-        #     newWidth = int(winSize.height() * pixMapRatio)
-        #     offset = int((newWidth - winSize.width()) // -2)
-        #     painter.drawPixmap(offset, 0, newWidth, winSize.height(), self.bgImage)
-        # else:
-        #     print('big')
-        #     newHeight = int(winSize.width() / pixMapRatio)
-        #     painter.drawPixmap(0, 0, winSize.width(), newHeight, self.bgImage)
-        pixSize = self.bgImage.size()
-        pixSize.scale(winSize, Qt.AspectRatioMode.KeepAspectRatio)
-        scaledPix = self.bgImage.scaled(pixSize, Qt.AspectRatioMode.KeepAspectRatio)
-        painter.drawPixmap(0, 0, scaledPix)
-
-
-class GameView(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.ui = uic.loadUi('GameUI.ui', self)
-
-    def resizeEvent(self, e):
-        # self.ui.board.fitInView(self.ui.board.sceneRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
-        print("Resized")
-        print(e.size())
-
-    def eventFilter(self, o, e):
-        if o == QGraphicsView and e and e.type() == QEvent.PaintEvent:
-            print('Paint GraphicsView')
+from PyQt6.QtWidgets import QApplication
 
 
 def parseInput():
@@ -161,7 +112,7 @@ def attemptShot(player: Board):
                 done = True
 
 
-class grid:
+class Grid:
     def __init__(self):
         self.x = 0
         self.y = 0
@@ -174,7 +125,7 @@ def main():
 
     window = GameView()
     # window.board.setBackgroundBrush(brush)
-    board = boardScene(0, 0, 400, 400)
+    # board = BoardScene(0, 0, window.board.width(), window.board.height())
     # board.setBackgroundBrush(QColor(144, 152, 158))
     # pixmap = QPixmap('QtResources/images/BoardBackground.jpg')
     # background = QGraphicsPixmapItem(pixmap)
@@ -182,18 +133,11 @@ def main():
     # board.setBackgroundBrush(background)
     # board.addItem(background)
 
-    rect = QGraphicsRectItem(0, 0, 100, 100)
-    rect.setBrush(QColor(49, 149, 202))
-    rect.setOpacity(0.8)
+    # print(board.width(), sz)
 
-    board.addItem(rect)
-    window.board.setScene(board)
-    # window.board.fitInView(board.sceneRect())
-    # window.setCentralWidget(window.board)
+    # window.board.setScene(board)
+
     window.show()
-
-    print(board.itemsBoundingRect())
-    print(*window.board.mapFromScene(board.itemsBoundingRect()))
 
     app.exec()
     # player1 = setupPlayer('Player 1')
