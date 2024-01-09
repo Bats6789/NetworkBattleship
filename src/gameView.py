@@ -9,10 +9,11 @@ from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtCore import Qt
 from BoardView import BoardScene
+from battleship import Board
 
 
 class GameView(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, gameBoard: Board, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui = uic.loadUi('GameUI.ui', self)
         self.isFullScreen = True
@@ -28,7 +29,7 @@ class GameView(QMainWindow):
 
         self.board.setFixedSize(boardSz, boardSz)
 
-        scene = BoardScene(0, 0, self.board.width(), self.board.height())
+        scene = BoardScene(gameBoard, 0, 0, self.board.width(), self.board.height())
         self.board.setScene(scene)
 
     def keyPressEvent(self, e: QKeyEvent):

@@ -16,7 +16,11 @@ class BoardView(QGraphicsView):
 
 
 class BoardScene(QGraphicsScene):
-    def __init__(self, *args, **kwargs):
+    shotColor = QColor(255, 0, 0)
+    idleColor = QColor(49, 149, 202)
+    highlightColor = QColor(240, 141, 65)
+
+    def __init__(self, board, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bgImage = QPixmap('QtResources/images/BoardBackground.jpg')
 
@@ -28,7 +32,7 @@ class BoardScene(QGraphicsScene):
         # Set the properties of the tiles
         for i, rect in enumerate(self.rects):
             if not rect.border:
-                rect.setBrush(QColor(49, 149, 202))
+                rect.setBrush(self.idleColor)
                 rect.setOpacity(0.8)
             elif i != 0:
                 rect.setBrush(QColor(194, 194, 194))
@@ -43,11 +47,13 @@ class BoardScene(QGraphicsScene):
 
         self.installEventFilter(self)
 
+        self.board = board
+
     def drawBackground(self, painter: QPainter, rect: QRectF):
         winSize = rect.size().toSize()
         painter.drawPixmap(0, 0, winSize.width(), winSize.height(), self.bgImage)
 
-    def getRect(self, point: QPointF):
+    def getRectIndex(self, point: QPointF):
         for i, rect in enumerate(self.rects):
             x = [rect.pos().x(), rect.pos().x() + rect.rect().width()]
             y = [rect.pos().y(), rect.pos().y() + rect.rect().height()]
@@ -63,28 +69,41 @@ class BoardScene(QGraphicsScene):
 
         match(e.type()):
             case QEvent.Type.GraphicsSceneMouseMove:
-                i = self.getRect(e.scenePos())
-                if i != -1:
-                    row = i // 11
-                    col = i % 11
+                i = self.getRectIndex(e.scenePos())
 
-                    for i, rect in enumerate(self.rects):
-                        if not rect.border:
-                            if i % 11 == col or i // 11 == row:
-                                rect.setBrush(QColor(240, 141, 65))
-                            else:
-                                rect.setBrush(QColor(49, 149, 202))
-                            rect.update()
+                if i == -1:
+                    return False
+
+                row = i // 11
+                col = i % 11
+
+                for i, rect in enumerate(self.rects):
+                    if not rect.border:
+                        if self.board.grid[rect.row][rect.col] == 1:
+                            color = self.shotColor
+                        elif i % 11 == col or i // 11 == row:
+                            color = self.highlightColor
+                        else:
+                            color = self.idleColor
+                        rect.setBrush(color)
+                        rect.update()
                 self.update()
                 return True
             case QEvent.Type.GraphicsSceneLeave:
                 for i, rect in enumerate(self.rects):
                     if not rect.border:
-                        rect.setBrush(QColor(49, 149, 202))
+                        if self.board.grid[rect.row][rect.col] == 1:
+                            color = self.shotColor
+                        else:
+                            color = self.idleColor
+                        rect.setBrush(color)
                         rect.update()
                 self.update()
                 return True
             case QEvent.Type.GraphicsSceneMousePress:
+                i = self.getRectIndex(e.scenePos())
+                self.board.shoot(str(self.rects[i]))
+                self.rects[i].setBrush(self.shotColor)
                 self.update()
 
         return False
@@ -100,8 +119,7 @@ class Tile(QGraphicsRectItem):
 
         super().__init__(*args, **kwargs)
 
-        if not isBorder:
-            self.setAcceptHoverEvents(True)
+        self.setAcceptHoverEvents(True)
 
     def __repr__(self):
         if self.border:
@@ -116,9 +134,6 @@ class Tile(QGraphicsRectItem):
         else:
             return f'{chr(self.row + ord("A"))}{self.col + 1}'
 
-    def mousePressEvent(self, e):
-        print(self)
-
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget = None):
         super().paint(painter, option, widget)
         if self.border and self.row != self.col:
@@ -126,15 +141,3 @@ class Tile(QGraphicsRectItem):
             painter.setPen(QPen(QColor(0, 0, 0), 10))
             label = self.__repr__()
             painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, label)
-
-    def hoverEnterEvent(self, e):
-        if not self.border:
-            self.setBrush(QColor(240, 141, 65))
-            self.setOpacity(0.8)
-        super().hoverEnterEvent(e)
-
-    def hoverLeaveEvent(self, e):
-        if not self.border:
-            self.setBrush(QColor(49, 149, 202))
-            self.setOpacity(0.8)
-        super().hoverLeaveEvent(e)

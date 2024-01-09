@@ -185,8 +185,8 @@ class Board:
         '''
         Displays a string representation of the Board Object
         '''
-        return ' ' * 4 + ', '.join(chr(ord('A') + i) for i in range(0, 10)) + '\n'\
-            + '\n'.join(f'{i + 1:2}: ' + ', '.join(map(str, row))
+        return ' ' * 3 + ', '.join(str(i + 1) for i in range(0, 10)) + '\n'\
+            + '\n'.join(f'{chr(i + ord("A"))}: ' + ', '.join(map(str, row))
                         for i, row in enumerate(self.grid)) + '\n'\
             + '\n'.join(str(ship) for ship in self.ships)
 
@@ -280,14 +280,16 @@ class Board:
 
         return False
 
-    def shoot(self, shot: tuple[int, int]):
+    def shoot(self, shot: tuple[int, int] | str) -> str:
         '''
         Shoots the specified location and reports miss, same, hit, or sunk
 
         Parameters
         ----------
             shot: tuple[int, int]
-                The position of the shot
+                The position of the shot in (x, y)
+            shot: str
+                The position of the shot as a string (e.g. B4)
 
         Returns
         -------
@@ -300,6 +302,11 @@ class Board:
         ------
             OutOfBoundsException: The shot is out of bounds of the board
         '''
+        if isinstance(shot, str):
+            row = ord(shot[0]) - ord('A')
+            col = int(shot[1:]) - 1
+            shot = (col, row)
+
         if self.isOutOfBounds(shot):
             raise OutOfBoundsException
 

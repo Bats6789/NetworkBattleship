@@ -25,7 +25,7 @@ def parseInput():
         elif int(data[1:]) < 0 or int(data[1:]) > 10:
             print('Number is out of range. Can only be between "1" and "10"')
         else:
-            pos = (ord(data[0].upper()) - ord('A'), int(data[1:]) - 1)
+            pos = (int(data[1:] - 1, ord(data[0].upper()) - ord('A')))
             done = True
 
     return pos
@@ -52,6 +52,27 @@ def getShipFromPlayer(playerName: str, shipName: str, length: int) -> Ship:
             done = True
 
     return ship
+
+
+def quickSetup() -> Board:
+    board = Board()
+
+    # Carrier
+    board.addShip(Ship('Carrier', (0, 0), (0, 5)))
+
+    # Battleship
+    board.addShip(Ship('Battleship', (1, 0), (1, 4)))
+
+    # Destroyer
+    board.addShip(Ship('Destroyer', (2, 0), (2, 3)))
+
+    # Submarine
+    board.addShip(Ship('Submarine', (3, 0), (3, 3)))
+
+    # Patrol Boat
+    board.addShip(Ship('Patrol Boat', (4, 0), (4, 2)))
+
+    return board
 
 
 def setupPlayer(playerName: str) -> Board:
@@ -121,32 +142,14 @@ class Grid:
 
 
 def main():
-    app = QApplication(sys.argv)
-
-    window = GameView()
-    # window.board.setBackgroundBrush(brush)
-    # board = BoardScene(0, 0, window.board.width(), window.board.height())
-    # board.setBackgroundBrush(QColor(144, 152, 158))
-    # pixmap = QPixmap('QtResources/images/BoardBackground.jpg')
-    # background = QGraphicsPixmapItem(pixmap)
-    # background.setScale(2)
-    # board.setBackgroundBrush(background)
-    # board.addItem(background)
-
-    # print(board.width(), sz)
-
-    # window.board.setScene(board)
-
-    window.show()
-
-    app.exec()
     # player1 = setupPlayer('Player 1')
+    player1 = quickSetup()
     # player2 = setupPlayer('Player 2')
     # gameOver = False
     # turnPlayer = 1
     #
-    # print('Player 1:')
-    # print(player1)
+    print('Player 1:')
+    print(player1)
     #
     # print()
     #
@@ -173,6 +176,13 @@ def main():
     #     print('Player 2 Wins!')
     # else:
     #     print('Player 1 Wins!')
+
+    app = QApplication(sys.argv)
+
+    window = GameView(player1)
+    window.show()
+
+    app.exec()
 
     return 0
 
