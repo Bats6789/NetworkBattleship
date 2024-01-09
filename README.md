@@ -7,7 +7,7 @@ A simple project to develop network communication skills. Primarily in Python.
     - [ ] Setup Board
     - [ ] Game Board
         - [x] Display board
-        - [ ] Highlight hovered cell
+        - [x] Highlight hovered cell
         - [ ] Mark as hit or miss
 - [ ] Design communication standard
 - [x] Implement game

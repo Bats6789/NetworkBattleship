@@ -1,13 +1,18 @@
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem, QStyleOptionGraphicsItem
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPixmap, QPainter, QColor, QFont, QPen
-from PyQt6.QtCore import QRectF, Qt
+from PyQt6.QtCore import QRectF, Qt, QEvent, QPointF
 from itertools import product
 
 
 class BoardView(QGraphicsView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.setAcceptHoverEvents(True)
+
+    def hoverMoveEvent(self, e):
+        super().hoverMoveEvent(e)
+        print('hi')
 
 
 class BoardScene(QGraphicsScene):
@@ -36,9 +41,53 @@ class BoardScene(QGraphicsScene):
 
             self.addItem(rect)
 
+        self.installEventFilter(self)
+
     def drawBackground(self, painter: QPainter, rect: QRectF):
         winSize = rect.size().toSize()
         painter.drawPixmap(0, 0, winSize.width(), winSize.height(), self.bgImage)
+
+    def getRect(self, point: QPointF):
+        for i, rect in enumerate(self.rects):
+            x = [rect.pos().x(), rect.pos().x() + rect.rect().width()]
+            y = [rect.pos().y(), rect.pos().y() + rect.rect().height()]
+            # if rect.contains(point):
+            if x[0] <= point.x() <= x[1] and y[0] <= point.y() <= y[1] and not rect.border:
+                return i
+
+        return -1
+
+    def eventFilter(self, o, e: QEvent) -> bool:
+        if not e:
+            return False
+
+        match(e.type()):
+            case QEvent.Type.GraphicsSceneMouseMove:
+                i = self.getRect(e.scenePos())
+                if i != -1:
+                    row = i // 11
+                    col = i % 11
+
+                    for i, rect in enumerate(self.rects):
+                        if not rect.border:
+                            if i % 11 == col or i // 11 == row:
+                                rect.setBrush(QColor(240, 141, 65))
+                            else:
+                                rect.setBrush(QColor(49, 149, 202))
+                            rect.update()
+                self.update()
+                return True
+            case QEvent.Type.GraphicsSceneLeave:
+                for i, rect in enumerate(self.rects):
+                    if not rect.border:
+                        rect.setBrush(QColor(49, 149, 202))
+                        rect.update()
+                self.update()
+                return True
+            case QEvent.Type.GraphicsSceneMousePress:
+                self.update()
+
+        return False
 
 
 class Tile(QGraphicsRectItem):
@@ -48,7 +97,11 @@ class Tile(QGraphicsRectItem):
         self.row = row
         self.col = col
         self.border = isBorder
+
         super().__init__(*args, **kwargs)
+
+        if not isBorder:
+            self.setAcceptHoverEvents(True)
 
     def __repr__(self):
         if self.border:
@@ -73,3 +126,15 @@ class Tile(QGraphicsRectItem):
             painter.setPen(QPen(QColor(0, 0, 0), 10))
             label = self.__repr__()
             painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, label)
+
+    def hoverEnterEvent(self, e):
+        if not self.border:
+            self.setBrush(QColor(240, 141, 65))
+            self.setOpacity(0.8)
+        super().hoverEnterEvent(e)
+
+    def hoverLeaveEvent(self, e):
+        if not self.border:
+            self.setBrush(QColor(49, 149, 202))
+            self.setOpacity(0.8)
+        super().hoverLeaveEvent(e)
