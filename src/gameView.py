@@ -32,6 +32,9 @@ class GameView(QMainWindow):
         scene = BoardScene(gameBoard, 0, 0, self.board.width(), self.board.height())
         self.board.setScene(scene)
 
+        # Connect signals
+        self.FireButton.clicked.connect(scene.shoot)
+
     def keyPressEvent(self, e: QKeyEvent):
         match(e.text()):
             case 'q':

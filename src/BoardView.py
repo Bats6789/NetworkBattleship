@@ -48,6 +48,8 @@ class BoardScene(QGraphicsScene):
         self.installEventFilter(self)
 
         self.board = board
+        self.isLocked = False
+        self.lockedPos = -1
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
         winSize = rect.size().toSize()
@@ -74,39 +76,59 @@ class BoardScene(QGraphicsScene):
                 if i == -1:
                     return False
 
-                row = i // 11
-                col = i % 11
+                if not self.isLocked:
+                    self.highlightGrid(i)
 
-                for i, rect in enumerate(self.rects):
-                    if not rect.border:
-                        if self.board.grid[rect.row][rect.col] == 1:
-                            color = self.shotColor
-                        elif i % 11 == col or i // 11 == row:
-                            color = self.highlightColor
-                        else:
-                            color = self.idleColor
-                        rect.setBrush(color)
-                        rect.update()
                 self.update()
                 return True
             case QEvent.Type.GraphicsSceneLeave:
-                for i, rect in enumerate(self.rects):
-                    if not rect.border:
-                        if self.board.grid[rect.row][rect.col] == 1:
-                            color = self.shotColor
-                        else:
-                            color = self.idleColor
-                        rect.setBrush(color)
-                        rect.update()
+                if self.isLocked:
+                    return True
+                self.refreshRects()
                 self.update()
                 return True
             case QEvent.Type.GraphicsSceneMousePress:
-                i = self.getRectIndex(e.scenePos())
-                self.board.shoot(str(self.rects[i]))
-                self.rects[i].setBrush(self.shotColor)
+                self.isLocked = True
+                self.lockedPos = self.getRectIndex(e.scenePos())
+                self.highlightGrid(self.lockedPos)
                 self.update()
 
         return False
+
+    def highlightGrid(self, index):
+        col = index % 11
+        row = index // 11
+        for i, rect in enumerate(self.rects):
+            if not rect.border:
+                if self.board.grid[rect.row][rect.col] == 1:
+                    color = self.shotColor
+                elif i % 11 == col or i // 11 == row:
+                    color = self.highlightColor
+                else:
+                    color = self.idleColor
+                rect.setBrush(color)
+                rect.update()
+
+    def refreshRects(self):
+        for i, rect in enumerate(self.rects):
+            if not rect.border:
+                if self.board.grid[rect.row][rect.col] == 1:
+                    color = self.shotColor
+                else:
+                    color = self.idleColor
+                rect.setBrush(color)
+                rect.update()
+
+    def shoot(self):
+        if not self.isLocked:
+            pass
+
+        self.board.shoot(str(self.rects[self.lockedPos]))
+        self.rects[self.lockedPos].setBrush(self.shotColor)
+        self.isLocked = False
+        self.lockedPos = -1
+        self.refreshRects()
+        self.update()
 
 
 class Tile(QGraphicsRectItem):
