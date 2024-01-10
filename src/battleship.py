@@ -7,17 +7,17 @@ Desc: Game logic for battleship.
 
 
 class OutOfBoundsException(Exception):
-    "Raised when a ship is out of bounds"
+    'Raised when a ship is out of bounds'
     pass
 
 
 class InvalidPlacementException(Exception):
-    "Raised when the ship is placed diagonally"
+    'Raised when the ship is placed diagonally'
     pass
 
 
 class OverlapException(Exception):
-    "Raised when the ship overlaps another ship"
+    'Raised when the ship overlaps another ship'
     pass
 
 
@@ -48,20 +48,20 @@ class Ship:
         Checks if the position is on the ship
     '''
 
-    def __init__(self, name, start, stop):
+    def __init__(self, name: str, start: tuple[int, int], stop: tuple[int, int]):
         '''
         Constructs all the necesarry attributes for the Ship object
 
         Parameters
         ----------
-            name: str
-                The name of the ship
+        name: str
+            The name of the ship
 
-            start: tuple[int, int]
-                The start coordinate of the ship
+        start: tuple[int, int]
+            The start coordinate of the ship
 
-            stop: tuple[int, int]
-                The stop coordinate of the ship
+        stop: tuple[int, int]
+            The stop coordinate of the ship
         '''
         if start[0] != stop[0] and start[1] != stop[1]:
             raise InvalidPlacementException
@@ -88,7 +88,7 @@ class Ship:
         '''
         return len(self.hits)
 
-    def shoot(self, shot: tuple[int, int]):
+    def shoot(self, shot: tuple[int, int]) -> bool:
         '''
         Attempts to shoot the ship
 
@@ -97,12 +97,12 @@ class Ship:
 
         Parameters
         ----------
-            shot: tuple[int, int]
-                The position of the shot
+        shot: tuple[int, int]
+            The position of the shot
 
         Returns
         -------
-            bool: True if shot hit ship
+        bool: True if shot hit ship
         '''
         if self.posOnShip(shot):
             key = shot[0] - self.start[0] + shot[1] - self.start[1]
@@ -111,7 +111,7 @@ class Ship:
         else:
             return False
 
-    def isSunk(self):
+    def isSunk(self) -> bool:
         '''
         Checks if ship is sunk
 
@@ -120,7 +120,7 @@ class Ship:
 
         Returns
         -------
-            bool: True if all positions are hit
+        bool: True if all positions are hit
         '''
         return all(self.hits)
 
@@ -130,12 +130,12 @@ class Ship:
 
         Parameters
         ----------
-            pos: tuple[int, int]
-                The position to check
+        pos: tuple[int, int]
+            The position to check
 
         Returns
         -------
-            bool: True if the position is on the ship
+        bool: True if the position is on the ship
         '''
         return self.start[0] <= pos[0] <= self.stop[0]\
             and self.start[1] <= pos[1] <= self.stop[1]
@@ -196,12 +196,12 @@ class Board:
 
         Parameters
         ----------
-            ship: Ship
-                The ship to check
+        ship: Ship
+            The ship to check
 
         Returns
         -------
-            bool: True if the ship overlaps
+        bool: True if the ship overlaps
         '''
         for i in range(ship.start[0], ship.stop[0] + 1):
             for j in range(ship.start[1], ship.stop[1] + 1):
@@ -215,12 +215,12 @@ class Board:
 
         Parameters
         ----------
-            pos: tuple[int, int]
-                The position to check
+        pos: tuple[int, int]
+            The position to check
 
         Returns
         -------
-            bool: True if pos is out of bounds
+        bool: True if pos is out of bounds
         '''
         return pos[0] < 0 or pos[0] >= 10 or pos[1] < 0 or pos[1] >= 10
 
@@ -235,13 +235,13 @@ class Board:
 
         Parameters
         ----------
-            ship: Ship
-                The ship to add
+        ship: Ship
+            The ship to add
 
         Raises
         ------
-            OutOfBoundsException: The ship is out of bounds of the board
-            OverlapException: The ship overlaps another ship
+        OutOfBoundsException: The ship is out of bounds of the board
+        OverlapException: The ship overlaps another ship
         '''
         if self.isOutOfBounds(ship.start) or self.isOutOfBounds(ship.stop):
             raise OutOfBoundsException
@@ -255,7 +255,7 @@ class Board:
             for j in range(ship.start[1], ship.stop[1] + 1):
                 self.grid[j][i] = ship.name[0]
 
-    def removeShip(self, name: str):
+    def removeShip(self, name: str) -> bool:
         '''
         Attempts to remove ship from the board
 
@@ -263,12 +263,12 @@ class Board:
 
         Parameters
         ----------
-            name: str
-                The name of the ship to remove
+        name: str
+            The name of the ship to remove
 
         Returns
         -------
-            bool: True if the ship was removed
+        bool: True if the ship was removed
         '''
         for ship in self.ships:
             if name == ship.name:
@@ -280,32 +280,35 @@ class Board:
 
         return False
 
+    def strToPoint(self, s: str) -> tuple[int, int]:
+        row = ord(s[0]) - ord('A')
+        col = int(s[1:]) - 1
+        return (col, row)
+
     def shoot(self, shot: tuple[int, int] | str) -> str:
         '''
         Shoots the specified location and reports miss, same, hit, or sunk
 
         Parameters
         ----------
-            shot: tuple[int, int]
-                The position of the shot in (x, y)
-            shot: str
-                The position of the shot as a string (e.g. B4)
+        shot: tuple[int, int]
+            The position of the shot in (x, y)
+        shot: str
+            The position of the shot as a string (e.g. B4)
 
         Returns
         -------
-            str: "MISS" if the shot did not hit a ship
-                 "SAME" if the shot hit a previously shot position
-                 "HIT" if the shot hit a ship
-                 "SUNK" if the shot sank the ship
+        str: "MISS" if the shot did not hit a ship
+             "SAME" if the shot hit a previously shot position
+             "HIT" if the shot hit a ship
+             "SUNK" if the shot sank the ship
 
         Raises
         ------
-            OutOfBoundsException: The shot is out of bounds of the board
+        OutOfBoundsException: The shot is out of bounds of the board
         '''
         if isinstance(shot, str):
-            row = ord(shot[0]) - ord('A')
-            col = int(shot[1:]) - 1
-            shot = (col, row)
+            shot = self.strToPoint(shot)
 
         if self.isOutOfBounds(shot):
             raise OutOfBoundsException
@@ -329,31 +332,45 @@ class Board:
 
         return didHit
 
-    def isGameOver(self):
+    def isGameOver(self) -> bool:
         '''
         Checks if game is over.
 
         Returns
         -------
-            bool: True if all ships have been sunk
+        bool: True if all ships have been sunk
         '''
         return all(map(Ship.isSunk, self.ships))
 
-    def getShipAtPos(self, pos: tuple[int, int]) -> Ship | None:
+    def getShipAtPos(self, pos: tuple[int, int] | str) -> Ship | None:
         '''
         Gets a ship at position (pos) if it exists
 
         Parameters
         ----------
-            pos: tuple[int, int]
-                The position of the ship to find
+        pos: tuple[int, int]
+            The position of the ship to find in (x, y)
+
+        pos: str
+            The position of the ship to find as a string (e.g. B4)
 
         Returns
         -------
-            Ship: The ship found
+        Ship: The ship found
 
-            None: The ship was not found
+        None: The ship was not found
+
+        Exception
+        ----------
+        OutOfBoundsException: The shot is out of bounds of the board
         '''
+
+        if isinstance(pos, str):
+            pos = self.strToPoint(pos)
+
+        if self.isOutOfBounds(pos):
+            raise OutOfBoundsException
+
         if self.grid[pos[1]][pos[0]] == 0:
             return None
 
@@ -365,3 +382,31 @@ class Board:
                 break
 
         return foundShip
+
+    def isShot(self, pos: tuple[int, int] | str) -> bool:
+        '''
+        Checks if cell has been shot
+
+        Parameters
+        ----------
+        pos: tuple[int, int]
+            The position of the cell to check in (x, y)
+
+        pos: str
+            The position of the cell to check as a string (e.g. B4)
+
+        Returns
+        -------
+        bool: True if the cell was shot
+
+        Exception
+        ----------
+        OutOfBoundsException: The shot is out of bounds of the board
+        '''
+        if isinstance(pos, str):
+            pos = self.strToPoint(pos)
+
+        if self.isOutOfBounds(pos):
+            raise OutOfBoundsException
+
+        return self.grid[pos[1]][pos[0]] == 1

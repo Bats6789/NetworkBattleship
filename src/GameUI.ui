@@ -194,7 +194,7 @@
   <customwidget>
    <class>BoardView</class>
    <extends>QGraphicsView</extends>
-   <header>BoardView</header>
+   <header>BoardModal</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -8,12 +8,40 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtCore import Qt
-from BoardView import BoardScene
+from BoardModal import BoardScene
 from battleship import Board
 
 
 class GameView(QMainWindow):
+    '''
+    A class to represent the view of a game.
+
+    Attributes
+    ----------
+    gameBoard: Board
+        The board to use as the modal
+
+    Methods
+    -------
+    keyPressEvent(e)
+        Handles key presses to the view
+    '''
+
     def __init__(self, gameBoard: Board, *args, **kwargs):
+        '''
+        Constructs all the necesarry attributes for the GameView object
+
+        Parameters
+        ----------
+        gameBoard: Board
+            The board to use as the modal
+
+        *args
+            optional arguments to pass to the parent class
+
+        **kwargs
+            optional keyword arguments to pass to the parent class
+        '''
         super().__init__(*args, **kwargs)
         self.ui = uic.loadUi('GameUI.ui', self)
         self.isFullScreen = True
@@ -36,6 +64,14 @@ class GameView(QMainWindow):
         self.FireButton.clicked.connect(scene.shoot)
 
     def keyPressEvent(self, e: QKeyEvent):
+        '''
+        Override of the keyPressEvent
+
+        Parameters
+        ----------
+        e: QKeyEvent
+            The event to process
+        '''
         match(e.text()):
             case 'q':
                 self.close()
