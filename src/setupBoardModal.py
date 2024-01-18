@@ -1,31 +1,13 @@
-'''
-File: BoardModal.py
-Auth: Blake Wingard - bats23456789@gmail.com
-Date: 01/09/2024
-Desc: The BoardModal of the project.
-'''
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem, QStyleOptionGraphicsItem
-from PyQt6.QtWidgets import QWidget
-from PyQt6.QtGui import QPixmap, QPainter, QColor, QFont, QPen, QColorConstants
-from PyQt6.QtCore import QRectF, Qt, QEvent, QPointF, QObject
+from PyQt6.QtWidgets import QGraphicsScene
+from PyQt6.QtGui import QPixmap, QPainter, QColor, QColorConstants
+from PyQt6.QtCore import QRectF, QEvent, QPointF, QObject
 from itertools import product
 from util import linearInterpolateColor
 from battleship import Board
+from GameBoardModal import Cell
 
 
-class BoardView(QGraphicsView):
-    '''
-    A class to represent the view of the board
-    '''
-
-    def __init__(self, *args, **kwargs):
-        '''
-        Constructs all the necesarry attributes for the BoardScene object
-        '''
-        super().__init__(*args, **kwargs)
-
-
-class BoardScene(QGraphicsScene):
+class SetupBoardScene(QGraphicsScene):
     '''
     A class for the scene of the Board
 
@@ -272,76 +254,3 @@ class BoardScene(QGraphicsScene):
         self.lockedPos = -1
         self.refreshCells()
         self.update()
-
-
-class Cell(QGraphicsRectItem):
-    '''
-    A class for representing a cell in the board
-
-    Attributes
-    ----------
-    font: QFont
-        The font of the cell
-    '''
-    font = QFont('Times', 20, QFont.Weight.Bold)
-
-    def __init__(self, col: int, row: int, isBorder: bool, *args, **kwargs):
-        '''
-        Constructs all the necesarry attributes for the BoardScene object
-
-        Parameters
-        ----------
-        col: int
-            The col of the cell
-
-        row: int
-            The row of the cell
-
-        isBorder: bool
-            True if the current cell is a border cell
-        '''
-        self.row = row
-        self.col = col
-        self.border = isBorder
-
-        super().__init__(*args, **kwargs)
-
-        self.setAcceptHoverEvents(True)
-
-    def __repr__(self) -> str:
-        '''
-        Returns the string representation of the Cell
-        '''
-        if self.border:
-            if self.row == self.col:
-                return 'X'
-            elif self.col == 9:
-                return '10'
-            elif self.row == -1:
-                return chr(self.col + ord('1'))
-            else:
-                return chr(self.row + ord('A'))
-        else:
-            return f'{chr(self.row + ord("A"))}{self.col + 1}'
-
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget = None):
-        '''
-        Override of the paint method
-
-        Parameters
-        ----------
-        painter: QPainter
-            The painter of the Cell
-
-        option: QStyleOptionGraphicsItem
-            The options for the cell
-
-        widget: QWidget
-            The widget being painted
-        '''
-        super().paint(painter, option, widget)
-        if self.border and self.row != self.col:
-            painter.setFont(self.font)
-            painter.setPen(QPen(QColor(0, 0, 0), 10))
-            label = self.__repr__()
-            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, label)

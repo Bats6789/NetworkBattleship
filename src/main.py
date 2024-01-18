@@ -7,7 +7,8 @@ Desc: The main entry point for the project.
 from battleship import Board
 from battleship import Ship
 import battleship
-from gameView import GameView
+# from gameView import GameView
+from setupView import SetupView
 import sys
 from PyQt6.QtWidgets import QApplication
 
@@ -143,13 +144,13 @@ class Grid:
 
 def main():
     # player1 = setupPlayer('Player 1')
-    player1 = quickSetup()
+    # player1 = quickSetup()
     # player2 = setupPlayer('Player 2')
     # gameOver = False
     # turnPlayer = 1
     #
-    print('Player 1:')
-    print(player1)
+    # print('Player 1:')
+    # print(player1)
     #
     # print()
     #
@@ -179,7 +180,8 @@ def main():
 
     app = QApplication(sys.argv)
 
-    window = GameView(player1)
+    # window = GameView(player1)
+    window = SetupView()
     window.show()
 
     app.exec()
